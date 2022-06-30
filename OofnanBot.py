@@ -2,6 +2,9 @@
 import tweepy
 import os
 import time
+import requests
+import cv2
+from facedetection import detectFaces
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -31,7 +34,6 @@ def createApi():
 
     return api
 
-api = createApi()
 
 def infoAboutMe(user):
     '''Function that returns a string with user's name, description and location.'''
@@ -83,13 +85,77 @@ def replyToTweets():
             print("A Hello World Response Has Been Sent.")
 
         elif '#aboutme' in tweet.full_text.lower():
+
             reply_tweet = infoAboutMe(tweet.user) + '\n' + "@" + tweet.user.screen_name
             api.update_status(reply_tweet, in_reply_to_status_id = tweet.id)
             print("An About Me Response Has Been Sent.")
 
+        elif '#facedetection' in tweet.full_text.lower():
+            
+            # Grabbing any media in the tweet
+            media_files = []
+            media = tweet.entities.get('media', [])
+
+            if(len(media) == 0):
+                # No picture attached with tweet
+                reply_tweet = " I could not find an image with your tweet to analyse, " + "@" + tweet.user.screen_name
+                api.update_status(reply_tweet, in_reply_to_status_id = tweet.id)
+                print("A Face Detection Response Has Been Sent.")
+
+            else:
+                media_files.append(media[0]['media_url'])
+
+                # Downloading the image for further processing
+                image_link = requests.get(media_files[-1])
+                f = open('that_image.jpg','wb')
+                f.write(image_link.content)
+                f.close()
+
+                # Detecting faces
+                final_image_path, number_of_faces = detectFaces('that_image.jpg')
+
+                # Uploading the image to twitter
+                uploaded_media = api.media_upload(final_image_path)
+            
+                # Posting the tweet with the image
+                reply_tweet = f"I found {number_of_faces} faces in this image! " + "@" + tweet.user.screen_name
+                api.update_status(status=reply_tweet, media_ids=[uploaded_media.media_id],in_reply_to_status_id = tweet.id)
+                print("A Face Detection Response Has Been Sent.")
+                
+
+# def getMedia():
+
+    # # Grabbing the mentions timeline
+    # timeline = api.mentions_timeline( #since_id = last_seen_id,
+    #  tweet_mode='extended') # Extended to allow for a tweet's full_text
+    
+    # media_files = []
+
+    # for tweet in reversed(timeline):
+    #     # check for hashtag
+    #     media = tweet.entities.get('media', [])
+    #     if(len(media) > 0):
+    #         media_files.append(media[0]['media_url'])
+
+    # print(media_files)
+    # Downloading the image for further processing
+    # image_link = requests.get(media_files[-1])
+    # f = open('that_image.jpg','wb')
+    # f.write(image_link.content)
+    # f.close()
+
+    # Detecting faces
+    # final_image_path = detectFaces('that_image.jpg')
+
+    # # Uploading the image to twitter
+    # uploaded_media = api.media_upload(final_image_path)
+ 
+    # # Post tweet with image
+    # api.update_status(status='', media_ids=[uploaded_media.media_id]) #in_reply_to_status_id = tweet.id
 
 
 if __name__=="__main__":
+    api = createApi()
     while True:
         replyToTweets()
         time.sleep(15)
