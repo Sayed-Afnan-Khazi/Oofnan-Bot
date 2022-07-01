@@ -1,6 +1,8 @@
 # Oofnan-Bot
 A Twitter bot made in Python using the Twitter API 2.0, the Tweepy library and OpenCV for Computer Vision. 
-[Watch the Bot on Twitter](https://twitter.com/KOofnan)
+
+[Watch the Bot on Twitter](https://twitter.com/KOofnan) 
+
 Integrated with the OpenCV library for Computer Vision to detect faces in tweets and reply with an updated photo with recognised faces marked. 
 ## Files
 - OofnanBot.py : The main file for the bot's code
