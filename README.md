@@ -9,3 +9,5 @@ Integrated with the OpenCV library for Computer Vision to detect faces in tweets
 - face_detection.py: This file contains the function for detecting faces and creating a new image with teh faces marked.
 
 ## Blog Post:
+- Here's a blog post on m blog explaining how the bot works.
+[Blog Post](https://medium.com/@afnank/how-i-made-a-twitter-bot-with-face-detection-and-so-can-you-b590e56b0a61)
